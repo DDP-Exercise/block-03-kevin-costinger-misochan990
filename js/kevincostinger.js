@@ -39,15 +39,92 @@
  *     the scope of his variables and of course, makes use of
  *     event delegation, to keep his event listeners tidied up!
  *
- *     You - 2026-03-25
+ *     Alexandra - 2026-03-25
  *******************************************************/
 let sumExpenses = 0; //Use this variable to keep the sum up to date.
 
-function submitForm(e){
-    //TODO: Prevent the default behavior of the submit button.
-    //TODO: Validate the form. If everything is fine, add the expense to the tracker and reset the form.
+
+const form = document.querySelector("form");
+const tbody = document.querySelector("#expenses tbody");
+const expenseSumDisplay = document.querySelector("#expenseSum");
+
+form.addEventListener("submit", submitForm);
+
+
+tbody.addEventListener("click", function(e) {
+    if (e.target.tagName === "BUTTON") {
+        let row = e.target.closest("tr");
+        let amountToRemove = parseFloat(row.dataset.amount);
+        sumExpenses -= amountToRemove;
+        updateSumDisplay();
+
+        row.remove();
+    }
+});
+
+function submitForm(e) {
+    e.preventDefault();
+    let dateInput = document.querySelector("#date");
+    let amountInput = document.querySelector("#amount");
+    let expenseInput = document.querySelector("#expense");
+
+    let dateValue = dateInput.value;
+    let amountValue = parseFloat(amountInput.value);
+    let expenseValue = expenseInput.value;
+
+
+    if (isEmpty(dateValue)) {
+        dateInput.focus();
+        return;
+    }
+
+    if (isNaN(amountValue) || amountValue < 0.01) {
+        amountInput.focus();
+        return;
+    }
+
+    if (expenseValue.length < 3) {
+        expenseInput.focus();
+        return;
+    }
+
+    addExpense(dateValue, amountValue, expenseValue);
+    sumExpenses += amountValue;
+    updateSumDisplay();
+
+    e.target.reset();
+    dateInput.focus();
 }
 
+function addExpense(dateValue, amountValue, expenseValue) {
+    let tr = document.createElement("tr");
+    tr.dataset.amount = amountValue;
+
+    let tddate = document.createElement("td");
+    tddate.textContent = dateValue;
+
+    let tdamount = document.createElement("td");
+    tdamount.textContent = formatEuro(amountValue);
+
+    let tdexpense = document.createElement("td");
+    tdexpense.textContent = expenseValue;
+
+    let tdaction = document.createElement("td");
+    let deleteButton = document.createElement("button");
+    deleteButton.textContent = "Delete";
+    tdaction.append(deleteButton);
+
+    tr.append(tddate, tdamount, tdexpense, tdaction);
+    tbody.append(tr);
+}
+
+function updateSumDisplay() {
+    expenseSumDisplay.textContent = formatEuro(sumExpenses);
+}
+
+//P.S: I took the liberty and added a picture of Kevin in the files:pictures_of_kevin
+//I find it easier to code with a face of disappointment in mind and if I look at Kevin...
+// yeah I just know Kevin is a judgy b***, he would totally tell me to get my sh*t together and figure out a solution...
 
 /*****************************
  * DO NOT CHANGE CODE BELOW.
